@@ -1,35 +1,34 @@
-import axios from "axios";
+import axios from 'axios';
 
-type CommentResponse = {
+interface Comment {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+}
+
+interface CommentResult {
   id: number;
   body: string;
-};
+}
 
-async function safeFetchComment(
-  commentId: number | null | undefined
-): Promise<CommentResponse | null> {
-
-  if (typeof commentId !== "number" || commentId <= 0) {
-    return null;
-  }
-
+export async function safeFetchComment(commentId: number): Promise<CommentResult | null> {
   try {
-    const response = await axios.get(
+    const response = await axios.get<Comment>(
       `https://jsonplaceholder.typicode.com/comments/${commentId}`
     );
 
-    const data = response.data as {
-      id?: number;
-      body?: string;
+    return {
+      id: response.data.id,
+      body: response.data.body
     };
-
-    if (typeof data.id !== "number" || typeof data.body !== "string") {
-      return null;
-    }
-    const { id, body } = data;
-
-    return { id, body };
-  } catch {
+  } catch (error) {
     return null;
   }
 }
+﻿
+
+ 
+ 
+ 

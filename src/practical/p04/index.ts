@@ -1,34 +1,24 @@
-// export function countCommentsByPost() {}
-
-import axios from "axios";
+import axios from 'axios';
 
 interface Comment {
-  postId?: number | null;
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
 }
 
-type CommentCountMap = Record<number, number>;
-
-async function countCommentsByPost(): Promise<CommentCountMap> {
+export async function countCommentsByPost(): Promise<Record<number, number>> {
   try {
-    const response = await axios.get<Comment[]>(
-      "https://jsonplaceholder.typicode.com/comments"
-    );
+    const response = await axios.get<Comment[]>('https://jsonplaceholder.typicode.com/comments');
 
-    const comments = response.data;
-
-    if (!Array.isArray(comments) || comments.length === 0) {
-      return {};
-    }
-
-    return comments.reduce<CommentCountMap>((acc, comment) => {
-      if (typeof comment.postId !== "number") {
-        return acc;
+    return response.data.reduce((acc, comment) => {
+      if (comment.postId !== null && comment.postId !== undefined) {
+        acc[comment.postId] = (acc[comment.postId] || 0) + 1;
       }
-
-      acc[comment.postId] = (acc[comment.postId] ?? 0) + 1;
       return acc;
-    }, {});
-  } catch {
-    return {};
+    }, {} as Record<number, number>);
+  } catch (error) {
+    throw new Error(`Failed to fetch comments: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
